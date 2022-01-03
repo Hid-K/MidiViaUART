@@ -7,8 +7,6 @@ import javax.comm.UnsupportedCommOperationException;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiUnavailableException;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.TooManyListenersException;
 
 
@@ -50,78 +48,43 @@ public class MidiViaUart
 
                 if(numRead > 0)
                 {
-                    if((data[0] & 0b10000000) != 0 && data.length > 1)
+                    if(data.length == 3)
                     {
-                        if((data[0] & 0b00010000) != 0)
+                        if((data[0] & 0xF0) == 0b10010000)
                         {
-                            if(data.length == 3)
-                            {
-                                if(data[1] != 0)
-                                {
-                                    midiEmulator.noteOn(data[0] & 0x0F, data[1], data[2]);
-                                    System.out.println("Note " + data[1] + " on");
-                                }
-                                else
-                                {
-                                    midiEmulator.noteOff(data[0] & 0x0F, data[1], 127);
-                                    System.out.println("Note " + data[1] + " off");
-                                }
-                            } else
-                            {
-                                midiEmulator.noteOn(data[0] & 0x0F, data[1], 127);
-                            }
+                            if(data[2] != 0)
+                                midiEmulator.noteOn(data[0] & 0x0F, data[1], data[2]);
+                            else
+                                midiEmulator.noteOff(data[0] & 0x0F, data[1], 127);
 
                             lastCommand = data[0];
 
                             System.out.println("Note " + data[1] + " on");
-                        }else if((data[0] & 0b00010000) == 0)
+                        }else if((data[0] & 0xF0) == 0b10000000)
                         {
-                            if(data.length == 3)
-                            {
-                                midiEmulator.noteOff(data[0] & 0x0F, data[1], data[2]);
-                            } else
-                            {
-                                midiEmulator.noteOff(data[0] & 0x0F, data[1], 127);
-                            }
+                            midiEmulator.noteOff(data[0] & 0x0F, data[1], data[0]);
 
                             lastCommand = data[0];
 
                             System.out.println("Note " + data[1] + " off");
-                        };
-                    } else if(lastCommand != 0)
-                    {
-                        if(data.length > 1){
-                            if ((lastCommand & 0b00010000) != 0)
-                            {
-
-                                if(data[1] != 0)
-                                {
-                                    midiEmulator.noteOn(lastCommand & 0x0F, data[0], data[1]);
-                                    System.out.println("Note " + data[0] + " on");
-                                }
-                                else
-                                {
-                                    midiEmulator.noteOff(lastCommand & 0x0F, data[0], 127);
-                                    System.out.println("Note " + data[0] + " off");
-                                }
-
-                                System.out.println("Note " + data[1] + " on");
-                            } else if ((lastCommand & 0b00010000) == 0)
-                            {
-
-                                if(data.length == 3)
-                                {
-                                    midiEmulator.noteOff(data[0] & 0x0F, data[1], data[2]);
-                                } else
-                                {
-                                    midiEmulator.noteOff(data[0] & 0x0F, data[1], 127);
-                                }
-
-                                System.out.println("Note " + data[0] + " off");
-                            }
                         }
-                    };
-//                    System.out.println("Readen " + numRead + " bytes:" + (Arrays.toString(data)));
+                    } else if(data.length == 2)
+                    {
+                        if((lastCommand & 0xF0) == 0b10010000)
+                        {
+                            if(data[1] != 0)
+                                midiEmulator.noteOn(lastCommand & 0x0F, data[0], data[1]);
+                            else
+                                midiEmulator.noteOff(lastCommand & 0x0F, data[0], 127);
+
+                            System.out.println("Note " + data[0] + " on");
+                        }else if((lastCommand & 0xF0) == 0b10000000)
+                        {
+                            midiEmulator.noteOff(lastCommand & 0x0F, data[0], data[1]);
+
+                            System.out.println("Note " + data[0] + " off");
+                        }
+                    }
                 }
                 else
                     System.err.println("Error during data reading!");
