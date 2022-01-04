@@ -34,9 +34,10 @@ public class MidiEmulator
         try
         {
             myMsg.setMessage(ShortMessage.NOTE_ON, channel, noteNo, velocity);
+
             long timeStamp = -1;
             midiReceiver.send(myMsg, timeStamp);
-        } catch (Exception ignored){};
+        } catch (Exception ignored){}
     }
 
     void noteOff(int channel, int noteNo, int velocity)
@@ -48,10 +49,10 @@ public class MidiEmulator
             myMsg.setMessage(ShortMessage.NOTE_OFF, channel, noteNo, velocity);
             long timeStamp = -1;
             midiReceiver.send(myMsg, timeStamp);
-        } catch (Exception ignored){};
+        } catch (Exception ignored){}
     }
 
-    void sendPitch(int channel, short pitch) throws InvalidMidiDataException
+    void sendPitch(int channel, short pitch)
     {
         ShortMessage myMsg = new ShortMessage();
 
@@ -70,8 +71,8 @@ public class MidiEmulator
 
         long timeStamp = -1;
         midiReceiver.send(myMsg, timeStamp);
-        } catch (Exception ignored){};
-    };
+        } catch (Exception ignored){}
+    }
 
     void sendPitch(int channel, byte pitchL, byte pitchM)
     {
@@ -92,7 +93,7 @@ public class MidiEmulator
 
             long timeStamp = -1;
             midiReceiver.send(myMsg, timeStamp);
-        } catch (Exception ignored){};
+        } catch (Exception ignored){}
     }
 
     void sendVolumeLevel(int channel, byte volumeLevel)
@@ -105,6 +106,6 @@ public class MidiEmulator
 
             long timeStamp = -1;
             midiReceiver.send(myMsg, timeStamp);
-        } catch (Exception ignored){};
+        } catch (Exception ignored){}
     }
 }
