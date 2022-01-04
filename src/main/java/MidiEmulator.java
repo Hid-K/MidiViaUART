@@ -55,6 +55,8 @@ public class MidiEmulator
     {
         ShortMessage myMsg = new ShortMessage();
 
+        try
+        {
         myMsg.setMessage(ShortMessage.PITCH_BEND, channel, (byte)( (pitch>>7)  & 0b01111111), (byte)( (pitch>>1) & 0b01111111));
         //0LLLLLLL0MMMMMMM      \
         //LSB     MSB           / How it is must be
@@ -68,5 +70,41 @@ public class MidiEmulator
 
         long timeStamp = -1;
         midiReceiver.send(myMsg, timeStamp);
+        } catch (Exception ignored){};
     };
+
+    void sendPitch(int channel, byte pitchL, byte pitchM)
+    {
+        ShortMessage myMsg = new ShortMessage();
+
+        try
+        {
+            myMsg.setMessage(ShortMessage.PITCH_BEND, channel, (byte)( pitchL  & 0b01111111), (byte)( pitchM & 0b01111111));
+            //0LLLLLLL0MMMMMMM      \
+            //LSB     MSB           / How it is must be
+            //00XXXXXXXXXXXXXX Pitch value in short
+            //00MMMMMMMLLLLLLL
+            //00XXXXXXXXXXXXXX      = 000000000LLLLLLL
+            //00XXXXXXXXXXXXXX >> 7 = 000000000MMMMMMM
+            //000000000LLLLLLL cuts to 0LLLLLLL \
+            //                                   | 0LLLLLLL0MMMMMMM
+            //000000000MMMMMMM cuts to 0MMMMMMM /
+
+            long timeStamp = -1;
+            midiReceiver.send(myMsg, timeStamp);
+        } catch (Exception ignored){};
+    }
+
+    void sendVolumeLevel(int channel, byte volumeLevel)
+    {
+        ShortMessage myMsg = new ShortMessage();
+
+        try
+        {
+            myMsg.setMessage(ShortMessage.CONTROL_CHANGE, channel, 7, volumeLevel);
+
+            long timeStamp = -1;
+            midiReceiver.send(myMsg, timeStamp);
+        } catch (Exception ignored){};
+    }
 }

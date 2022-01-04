@@ -7,12 +7,13 @@ import javax.comm.UnsupportedCommOperationException;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiUnavailableException;
 import java.io.*;
+import java.util.Arrays;
 import java.util.TooManyListenersException;
 
 
 public class MidiViaUart
 {
-    public MidiViaUart(String UARTportName) throws InvalidMidiDataException, MidiUnavailableException
+    public MidiViaUart(String UARTportName, int baud) throws InvalidMidiDataException, MidiUnavailableException
     {
         SerialPort port = initSerialPort(UARTportName);
 
@@ -23,7 +24,7 @@ public class MidiViaUart
         };
 
         port.setComPortParameters(
-                115200,
+                baud,
                 8,
                 SerialPort.ONE_STOP_BIT,
                 SerialPort.NO_PARITY);
@@ -67,6 +68,23 @@ public class MidiViaUart
                             lastCommand = data[0];
 
                             System.out.println("Note " + data[1] + " off");
+                        }else if((data[0] & 0xF0) == 0b11100000)
+                        {
+                            midiEmulator.sendPitch(data[0] & 0x0F, data[1], data[2]);
+
+                            lastCommand = data[0];
+
+                            System.out.println("Pitch set to: " + data[1]);
+                        }else if((data[0] & 0xF0) == 0b10110000)
+                        {
+                            if(data[1] == 7)
+                            {
+                                midiEmulator.sendVolumeLevel(data[0] & 0x0F, data[2]);
+
+                                lastCommand = data[0];
+
+                                System.out.println("Volume level set to: " + data[2]);
+                            }
                         }
                     } else if(data.length == 2)
                     {
@@ -83,8 +101,23 @@ public class MidiViaUart
                             midiEmulator.noteOff(lastCommand & 0x0F, data[0], data[1]);
 
                             System.out.println("Note " + data[0] + " off");
+                        }else if((lastCommand & 0xF0) == 0b11100000)
+                        {
+                            midiEmulator.sendPitch(lastCommand & 0x0F, data[0], data[1]);
+
+                            System.out.println("Pitch set to: " + (long)(data[0] | (data[1] << 7)));
+                        }else if((lastCommand & 0xF0) == 0b10110000)
+                        {
+                            if(data[0] == 7)
+                            {
+                                midiEmulator.sendVolumeLevel(lastCommand & 0x0F, data[1]);
+
+                                System.out.println("Volume level set to: " + data[1]);
+                            }
                         }
                     }
+
+//                    System.out.println(Arrays.toString(data));
                 }
                 else
                     System.err.println("Error during data reading!");
@@ -117,8 +150,9 @@ public class MidiViaUart
     public static void main(String[] args) throws IOException, UnsupportedCommOperationException, TooManyListenersException, NoSuchPortException, InterruptedException, MidiUnavailableException, InvalidMidiDataException
     {
         String UARTportName = "cu.usbserial-1410";
+        int baud = 115200;
 
-        MidiViaUart midiViaUart = new MidiViaUart(UARTportName);
+        MidiViaUart midiViaUart = new MidiViaUart(UARTportName, baud);
 
         for(;;)Thread.sleep(1);
     }
