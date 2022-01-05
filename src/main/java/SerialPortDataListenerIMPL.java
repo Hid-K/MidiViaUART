@@ -84,16 +84,13 @@ public class SerialPortDataListenerIMPL implements SerialPortDataListener
             return 3;
         } else if ((data[0] & 0xF0) == 0b10110000)
         {
-            if (data[1] == 7)
-            {
-                midiEmulator.sendVolumeLevel(data[0] & 0x0F, data[2]);
+            midiEmulator.sendControlsChangeCommand(data[0] & 0x0F, data[1], data[2]);
 
-                lastCommand = data[0];
+            lastCommand = data[0];
 
-                log.log(Level.toLevel(Priority.INFO_INT),"Volume level set to: " + data[2]);
+            log.log(Level.toLevel(Priority.INFO_INT),"Control #" + data[1] + " level set to: " + data[2]);
 
-                return 3;
-            }
+            return 3;
         }
 
         return 100;
@@ -124,14 +121,11 @@ public class SerialPortDataListenerIMPL implements SerialPortDataListener
             return 2;
         } else if ((lastCommand & 0xF0) == 0b10110000)
         {
-            if (data[0] == 7)
-            {
-                midiEmulator.sendVolumeLevel(lastCommand & 0x0F, data[1]);
+            midiEmulator.sendControlsChangeCommand(lastCommand & 0x0F, data[0], data[1]);
 
-                log.log(Level.toLevel(Priority.INFO_INT),"Volume level set to: " + data[1]);
+            log.log(Level.toLevel(Priority.INFO_INT),"Control #" + data[0] + " level set to: " + data[1]);
 
-                return 2;
-            }
+            return 2;
         }
 
         return 100;

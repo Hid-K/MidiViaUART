@@ -123,4 +123,20 @@ public class MidiEmulator
             log.error(e.getMessage());
         }
     }
+
+    void sendControlsChangeCommand(int channel, byte controlNo, byte data)
+    {
+        ShortMessage myMsg = new ShortMessage();
+
+        try
+        {
+            myMsg.setMessage(ShortMessage.CONTROL_CHANGE, channel, controlNo, data);
+
+            long timeStamp = -1;
+            midiReceiver.send(myMsg, timeStamp);
+        } catch (Exception e)
+        {
+            log.error(e.getMessage());
+        }
+    };
 }
