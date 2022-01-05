@@ -38,12 +38,22 @@ public class SerialPortDataListenerIMPL implements SerialPortDataListener
         {
             processMidiInputData(data);
 
-                    log.debug(Arrays.toString(data));
+            if (log.getEffectiveLevel().isGreaterOrEqual(Level.DEBUG))
+            {
+                StringBuilder dataInBinary = new StringBuilder();
+
+                for (byte b : data)
+                {
+                    dataInBinary.append(Integer.toBinaryString(b & 255 | 256).substring(1) + "\t");
+                }
+
+                log.debug(dataInBinary.toString());
+            }
         } else
             log.error("Error during data reading!");
     }
 
-    private void onMIDIDataWithStatusByteLead(byte[] data)
+    private int onMIDIDataWithStatusByteLead(byte[] data)
     {
         if ((data[0] & 0xF0) == 0b10010000)
         {
@@ -52,6 +62,8 @@ public class SerialPortDataListenerIMPL implements SerialPortDataListener
             lastCommand = data[0];
 
             log.log(Level.toLevel(Priority.INFO_INT),"Note " + data[1] + " on");
+
+            return 3;
         } else if ((data[0] & 0xF0) == 0b10000000)
         {
             midiEmulator.noteOff(data[0] & 0x0F, data[1], data[0]);
@@ -59,6 +71,8 @@ public class SerialPortDataListenerIMPL implements SerialPortDataListener
             lastCommand = data[0];
 
             log.log(Level.toLevel(Priority.INFO_INT),"Note " + data[1] + " off");
+
+            return 3;
         } else if ((data[0] & 0xF0) == 0b11100000)
         {
             midiEmulator.sendPitch(data[0] & 0x0F, data[1], data[2]);
@@ -66,6 +80,8 @@ public class SerialPortDataListenerIMPL implements SerialPortDataListener
             lastCommand = data[0];
 
             log.log(Level.toLevel(Priority.INFO_INT),"Pitch set to: " + data[1]);
+
+            return 3;
         } else if ((data[0] & 0xF0) == 0b10110000)
         {
             if (data[1] == 7)
@@ -75,27 +91,37 @@ public class SerialPortDataListenerIMPL implements SerialPortDataListener
                 lastCommand = data[0];
 
                 log.log(Level.toLevel(Priority.INFO_INT),"Volume level set to: " + data[2]);
+
+                return 3;
             }
         }
+
+        return 100;
     }
 
-    private void onMIDIDataWithDataByteLead(byte[] data)
+    private int onMIDIDataWithDataByteLead(byte[] data)
     {
         if ((lastCommand & 0xF0) == 0b10010000)
         {
             midiEmulator.noteOn(lastCommand & 0x0F, data[0], data[1]);
 
             log.log(Level.toLevel(Priority.INFO_INT),"Note " + data[0] + " on");
+
+            return 2;
         } else if ((lastCommand & 0xF0) == 0b10000000)
         {
             midiEmulator.noteOff(lastCommand & 0x0F, data[0], data[1]);
 
             log.log(Level.toLevel(Priority.INFO_INT),"Note " + data[0] + " off");
+
+            return 2;
         } else if ((lastCommand & 0xF0) == 0b11100000)
         {
             midiEmulator.sendPitch(lastCommand & 0x0F, data[0], data[1]);
 
             log.log(Level.toLevel(Priority.INFO_INT),"Pitch set to: " + (long) (data[0] | (data[1] << 7)));
+
+            return 2;
         } else if ((lastCommand & 0xF0) == 0b10110000)
         {
             if (data[0] == 7)
@@ -103,18 +129,27 @@ public class SerialPortDataListenerIMPL implements SerialPortDataListener
                 midiEmulator.sendVolumeLevel(lastCommand & 0x0F, data[1]);
 
                 log.log(Level.toLevel(Priority.INFO_INT),"Volume level set to: " + data[1]);
+
+                return 2;
             }
         }
+
+        return 100;
     };
 
     private void processMidiInputData(byte[] data)
     {
+        int bytesProceed;
         if ((data[0] & 0b10000000) != 0)
         {
-            onMIDIDataWithStatusByteLead(data);
+            bytesProceed = onMIDIDataWithStatusByteLead(data);
         } else
         {
-            onMIDIDataWithDataByteLead(data);
+            bytesProceed = onMIDIDataWithDataByteLead(data);
+        }
+        if (bytesProceed < data.length)
+        {
+            processMidiInputData(Arrays.copyOf(data, bytesProceed));
         }
     };
 }

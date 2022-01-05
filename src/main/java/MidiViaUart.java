@@ -110,6 +110,6 @@ public class MidiViaUart
 
         MidiViaUart midiViaUart = new MidiViaUart(UARTportName, baud);
 
-        for (; ; ) Thread.sleep(1);
+        for (; ; ) Thread.sleep(1000);
     }
 }
