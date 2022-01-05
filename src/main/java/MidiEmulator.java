@@ -8,6 +8,8 @@ public class MidiEmulator
     //"Provided by MidiViaUart [GitHub: ]",
     //getClass().getPackage().getImplementationVersion()
 
+    Logger log = new Logger(this.getClass());
+
     Receiver midiReceiver = MidiSystem.getReceiver();
 
     public MidiEmulator() throws MidiUnavailableException
@@ -23,7 +25,7 @@ public class MidiEmulator
                 e.printStackTrace();
             }
 
-            System.out.println("All notes off on channel " + i);
+            log.logMessage("All notes off on channel " + i);
         }
     }
 
@@ -37,7 +39,10 @@ public class MidiEmulator
 
             long timeStamp = -1;
             midiReceiver.send(myMsg, timeStamp);
-        } catch (Exception ignored){}
+        } catch (Exception e)
+        {
+            log.logError(e.getMessage());
+        }
     }
 
     void noteOff(int channel, int noteNo, int velocity)
@@ -49,7 +54,10 @@ public class MidiEmulator
             myMsg.setMessage(ShortMessage.NOTE_OFF, channel, noteNo, velocity);
             long timeStamp = -1;
             midiReceiver.send(myMsg, timeStamp);
-        } catch (Exception ignored){}
+        } catch (Exception e)
+        {
+            log.logError(e.getMessage());
+        }
     }
 
     void sendPitch(int channel, short pitch)
@@ -71,7 +79,10 @@ public class MidiEmulator
 
         long timeStamp = -1;
         midiReceiver.send(myMsg, timeStamp);
-        } catch (Exception ignored){}
+        } catch (Exception e)
+        {
+            log.logError(e.getMessage());
+        }
     }
 
     void sendPitch(int channel, byte pitchL, byte pitchM)
@@ -93,7 +104,10 @@ public class MidiEmulator
 
             long timeStamp = -1;
             midiReceiver.send(myMsg, timeStamp);
-        } catch (Exception ignored){}
+        } catch (Exception e)
+        {
+            log.logError(e.getMessage());
+        }
     }
 
     void sendVolumeLevel(int channel, byte volumeLevel)
@@ -106,6 +120,9 @@ public class MidiEmulator
 
             long timeStamp = -1;
             midiReceiver.send(myMsg, timeStamp);
-        } catch (Exception ignored){}
+        } catch (Exception e)
+        {
+            log.logError(e.getMessage());
+        }
     }
 }

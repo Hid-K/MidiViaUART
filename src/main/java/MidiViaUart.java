@@ -7,13 +7,15 @@ import javax.sound.midi.MidiUnavailableException;
 
 public class MidiViaUart
 {
+    Logger log = new Logger(MidiViaUart.class);
+
     public MidiViaUart(String UARTportName, int baud) throws MidiUnavailableException
     {
         SerialPort port = initSerialPort(UARTportName);
 
         if (port == null)
         {
-            System.err.println("Error during port opening!\nClosing...");
+            log.logError("Error during port opening!\nClosing...");
             System.exit(-1);
         }
 
@@ -27,7 +29,7 @@ public class MidiViaUart
 
         port.addDataListener(dataListener);
 
-        System.out.println("Starting listening to data:");
+        log.logMessage("Starting listening to data:");
         if (!port.openPort()) System.err.println("Error opening port!");
     }
 
@@ -37,10 +39,9 @@ public class MidiViaUart
 
         for (SerialPort port : ports)
         {
-            System.out.println(port.getSystemPortName());
             if (port.getSystemPortName().equals(UARTportName))
             {
-                System.out.println("Found port's system entity.");
+                log.logMessage("Found port's system entity.");
                 return port;
             }
         }
@@ -52,6 +53,7 @@ public class MidiViaUart
     {
         String UARTportName = "cu.usbserial-1410";
         int baud = 115200;
+        Logger.setLogLevel(0);
 
         MidiViaUart midiViaUart = new MidiViaUart(UARTportName, baud);
 
