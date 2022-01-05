@@ -3,11 +3,6 @@ import java.util.List;
 
 public class MidiEmulator
 {
-    //"Virtual MIDI unit",
-    //"Hid-K",
-    //"Provided by MidiViaUart [GitHub: ]",
-    //getClass().getPackage().getImplementationVersion()
-
     Logger log = new Logger(this.getClass());
 
     Receiver midiReceiver = MidiSystem.getReceiver();
