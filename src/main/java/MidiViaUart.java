@@ -1,14 +1,16 @@
 import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortDataListener;
 import org.apache.commons.cli.*;
+import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
 import javax.sound.midi.MidiUnavailableException;
-import java.text.ParseException;
 
 
 public class MidiViaUart
 {
-    Logger log = new Logger(MidiViaUart.class);
+    Logger log = LogManager.getLogger(this.getClass());
 
     public MidiViaUart(String UARTportName, int baud) throws MidiUnavailableException
     {
@@ -16,7 +18,7 @@ public class MidiViaUart
 
         if (port == null)
         {
-            log.logError("Error during port opening!\nClosing...");
+            log.error("Error during port opening!\nClosing...");
             System.exit(-1);
         }
 
@@ -30,7 +32,7 @@ public class MidiViaUart
 
         port.addDataListener(dataListener);
 
-        log.logMessage("Starting listening to data:");
+        log.debug("Starting listening to data:");
         if (!port.openPort()) System.err.println("Error opening port!");
     }
 
@@ -42,7 +44,7 @@ public class MidiViaUart
         {
             if (port.getSystemPortName().equals(UARTportName))
             {
-                log.logMessage("Found port's system entity.");
+                log.debug("Found port's system entity.");
                 return port;
             }
         }
@@ -52,8 +54,9 @@ public class MidiViaUart
 
     public static void main(String[] args) throws InterruptedException, MidiUnavailableException
     {
-        Logger log = new Logger(MidiViaUart.class);
-        Logger.setLogLevel(4);
+        org.apache.log4j.BasicConfigurator.configure();
+
+        Logger log = LogManager.getLogger(MidiViaUart.class);
 
         Options options = new Options();
 
@@ -65,7 +68,7 @@ public class MidiViaUart
         baudArg.setRequired(false);
         options.addOption(baudArg);
 
-        Option logLevel = new Option("l", "logLevel", true, "Sets log level (0 - 4)");
+        Option logLevel = new Option("l", "logLevel", true, "Sets log level (https://logging.apache.org/log4j/2.x/log4j-api/apidocs/index.html)");
         logLevel.setRequired(false);
         options.addOption(logLevel);
 
@@ -76,7 +79,7 @@ public class MidiViaUart
         try {
             cmd = parser.parse(options, args);
         } catch (org.apache.commons.cli.ParseException e) {
-            log.logError(e.getMessage());
+            log.debug(e.getMessage());
             formatter.printHelp("utility-name", options);
 
             System.exit(1);
@@ -94,13 +97,16 @@ public class MidiViaUart
 
         try
         {
-            Logger.setLogLevel(Integer.parseInt(cmd.getOptionValue("logLevel")));
+            Logger.getRootLogger().setLevel(Level.toLevel(cmd.getOptionValue("logLevel")));
         } catch (NumberFormatException e)
         {
-            Logger.setLogLevel(0);
+            Logger.getRootLogger().setLevel(Level.OFF);
         }
 
-        log.logMessage("Starting with:\nBAUD: " + baud + "\n" + "Port" + ": " + UARTportName + "\nLog level: " + Logger.getLogLevel());
+        log.debug("Starting with:" +
+                  "\nBAUD: " + baud +
+                  "\nPort" + ": " + UARTportName +
+                  "\nLog level: " + Logger.getRootLogger().getLevel());
 
         MidiViaUart midiViaUart = new MidiViaUart(UARTportName, baud);
 

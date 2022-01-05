@@ -1,9 +1,14 @@
+import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import org.apache.log4j.Priority;
+
 import javax.sound.midi.*;
 import java.util.List;
 
 public class MidiEmulator
 {
-    Logger log = new Logger(this.getClass());
+    Logger log = LogManager.getLogger(this.getClass());
 
     Receiver midiReceiver = MidiSystem.getReceiver();
 
@@ -19,8 +24,6 @@ public class MidiEmulator
             {
                 e.printStackTrace();
             }
-
-            log.logMessage("All notes off on channel " + i);
         }
     }
 
@@ -36,7 +39,7 @@ public class MidiEmulator
             midiReceiver.send(myMsg, timeStamp);
         } catch (Exception e)
         {
-            log.logError(e.getMessage());
+            log.error(e.getMessage());
         }
     }
 
@@ -51,7 +54,7 @@ public class MidiEmulator
             midiReceiver.send(myMsg, timeStamp);
         } catch (Exception e)
         {
-            log.logError(e.getMessage());
+            log.error(e.getMessage());
         }
     }
 
@@ -76,7 +79,7 @@ public class MidiEmulator
         midiReceiver.send(myMsg, timeStamp);
         } catch (Exception e)
         {
-            log.logError(e.getMessage());
+            log.error(e.getMessage());
         }
     }
 
@@ -101,7 +104,7 @@ public class MidiEmulator
             midiReceiver.send(myMsg, timeStamp);
         } catch (Exception e)
         {
-            log.logError(e.getMessage());
+            log.error(e.getMessage());
         }
     }
 
@@ -117,7 +120,7 @@ public class MidiEmulator
             midiReceiver.send(myMsg, timeStamp);
         } catch (Exception e)
         {
-            log.logError(e.getMessage());
+            log.error(e.getMessage());
         }
     }
 }
