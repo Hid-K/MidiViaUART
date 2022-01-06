@@ -17,6 +17,18 @@ public class SerialPortDataListenerIMPL implements SerialPortDataListener
 
     byte lastCommand = 0;
 
+    public static class MIDIStatusByteUtils
+    {
+        public static final byte STATUS_MASK = (byte) 0xF0;
+        public static final byte CHANNEL_MASK = 0x0F;
+
+        public static final byte STATUS_NOTE_ON = (byte) 0b10010000;
+        public static final byte STATUS_NOTE_OFF = (byte) 0b10000000;
+
+        public static final byte STATUS_PITCH_SET = (byte) 0b11100000;
+        public static final byte STATUS_CONTROL_CHANGE = (byte) 0b10110000;
+    }
+
     public SerialPortDataListenerIMPL() throws MidiUnavailableException
     {
 
@@ -55,36 +67,36 @@ public class SerialPortDataListenerIMPL implements SerialPortDataListener
 
     private int onMIDIDataWithStatusByteLead(byte[] data)
     {
-        if ((data[0] & 0xF0) == 0b10010000)
+        if ((data[0] & MIDIStatusByteUtils.STATUS_MASK) == MIDIStatusByteUtils.STATUS_NOTE_ON)
         {
-            midiEmulator.noteOn(data[0] & 0x0F, data[1], data[2]);
+            midiEmulator.noteOn(data[0] & MIDIStatusByteUtils.CHANNEL_MASK, data[1], data[2]);
 
             lastCommand = data[0];
 
             log.log(Level.toLevel(Priority.INFO_INT),"Note " + data[1] + " on");
 
             return 3;
-        } else if ((data[0] & 0xF0) == 0b10000000)
+        } else if ((data[0] & MIDIStatusByteUtils.STATUS_MASK) == MIDIStatusByteUtils.STATUS_NOTE_OFF)
         {
-            midiEmulator.noteOff(data[0] & 0x0F, data[1], data[0]);
+            midiEmulator.noteOff(data[0] & MIDIStatusByteUtils.CHANNEL_MASK, data[1], data[0]);
 
             lastCommand = data[0];
 
             log.log(Level.toLevel(Priority.INFO_INT),"Note " + data[1] + " off");
 
             return 3;
-        } else if ((data[0] & 0xF0) == 0b11100000)
+        } else if ((data[0] & MIDIStatusByteUtils.STATUS_MASK) == MIDIStatusByteUtils.STATUS_PITCH_SET)
         {
-            midiEmulator.sendPitch(data[0] & 0x0F, data[1], data[2]);
+            midiEmulator.sendPitch(data[0] & MIDIStatusByteUtils.CHANNEL_MASK, data[1], data[2]);
 
             lastCommand = data[0];
 
             log.log(Level.toLevel(Priority.INFO_INT),"Pitch set to: " + data[1]);
 
             return 3;
-        } else if ((data[0] & 0xF0) == 0b10110000)
+        } else if ((data[0] & MIDIStatusByteUtils.STATUS_MASK) == MIDIStatusByteUtils.STATUS_CONTROL_CHANGE)
         {
-            midiEmulator.sendControlsChangeCommand(data[0] & 0x0F, data[1], data[2]);
+            midiEmulator.sendControlsChangeCommand(data[0] & MIDIStatusByteUtils.CHANNEL_MASK, data[1], data[2]);
 
             lastCommand = data[0];
 
@@ -98,30 +110,30 @@ public class SerialPortDataListenerIMPL implements SerialPortDataListener
 
     private int onMIDIDataWithDataByteLead(byte[] data)
     {
-        if ((lastCommand & 0xF0) == 0b10010000)
+        if ((lastCommand & MIDIStatusByteUtils.STATUS_MASK) == MIDIStatusByteUtils.STATUS_NOTE_ON)
         {
-            midiEmulator.noteOn(lastCommand & 0x0F, data[0], data[1]);
+            midiEmulator.noteOn(lastCommand & MIDIStatusByteUtils.CHANNEL_MASK, data[0], data[1]);
 
             log.log(Level.toLevel(Priority.INFO_INT),"Note " + data[0] + " on");
 
             return 2;
-        } else if ((lastCommand & 0xF0) == 0b10000000)
+        } else if ((lastCommand & MIDIStatusByteUtils.STATUS_MASK) == MIDIStatusByteUtils.STATUS_NOTE_OFF)
         {
-            midiEmulator.noteOff(lastCommand & 0x0F, data[0], data[1]);
+            midiEmulator.noteOff(lastCommand & MIDIStatusByteUtils.CHANNEL_MASK, data[0], data[1]);
 
             log.log(Level.toLevel(Priority.INFO_INT),"Note " + data[0] + " off");
 
             return 2;
-        } else if ((lastCommand & 0xF0) == 0b11100000)
+        } else if ((lastCommand & MIDIStatusByteUtils.STATUS_MASK) == MIDIStatusByteUtils.STATUS_PITCH_SET)
         {
-            midiEmulator.sendPitch(lastCommand & 0x0F, data[0], data[1]);
+            midiEmulator.sendPitch(lastCommand & MIDIStatusByteUtils.CHANNEL_MASK, data[0], data[1]);
 
             log.log(Level.toLevel(Priority.INFO_INT),"Pitch set to: " + (long) (data[0] | (data[1] << 7)));
 
             return 2;
-        } else if ((lastCommand & 0xF0) == 0b10110000)
+        } else if ((lastCommand & MIDIStatusByteUtils.STATUS_MASK) == MIDIStatusByteUtils.STATUS_CONTROL_CHANGE)
         {
-            midiEmulator.sendControlsChangeCommand(lastCommand & 0x0F, data[0], data[1]);
+            midiEmulator.sendControlsChangeCommand(lastCommand & MIDIStatusByteUtils.CHANNEL_MASK, data[0], data[1]);
 
             log.log(Level.toLevel(Priority.INFO_INT),"Control #" + data[0] + " level set to: " + data[1]);
 
