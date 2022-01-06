@@ -86,7 +86,7 @@ public class MidiEmulator
 
         try
         {
-            myMsg.setMessage(ShortMessage.PITCH_BEND, channel, (byte)( pitchL  & 0b01111111), (byte)( pitchM & 0b01111111));
+            myMsg.setMessage(ShortMessage.PITCH_BEND, channel, (byte)( pitchL  & 0b01111111 ), (byte)( pitchM & 0b01111111 ));
             //0LLLLLLL0MMMMMMM      \
             //LSB     MSB           / How it is must be
             //00XXXXXXXXXXXXXX Pitch value in short

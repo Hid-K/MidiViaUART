@@ -50,8 +50,8 @@ public class SerialPortDataListenerIMPL implements SerialPortDataListener
         {
             processMidiInputData(data);
 
-            if (log.getEffectiveLevel().isGreaterOrEqual(Level.DEBUG))
-            {
+//            if (log.getEffectiveLevel().isGreaterOrEqual(Level.DEBUG))
+//            {
                 StringBuilder dataInBinary = new StringBuilder();
 
                 for (byte b : data)
@@ -60,7 +60,7 @@ public class SerialPortDataListenerIMPL implements SerialPortDataListener
                 }
 
                 log.debug(dataInBinary.toString());
-            }
+//            }
         } else
             log.error("Error during data reading!");
     }
@@ -73,7 +73,9 @@ public class SerialPortDataListenerIMPL implements SerialPortDataListener
 
             lastCommand = data[0];
 
-            log.log(Level.toLevel(Priority.INFO_INT),"Note " + data[1] + " on");
+            if(data[2] > 0)
+                log.log(Level.toLevel(Priority.INFO_INT),"Note " + data[1] + " on");
+            else log.log(Level.toLevel(Priority.INFO_INT),"Note " + data[1] + " off");
 
             return 3;
         } else if ((data[0] & MIDIStatusByteUtils.STATUS_MASK) == MIDIStatusByteUtils.STATUS_NOTE_OFF)
@@ -114,7 +116,9 @@ public class SerialPortDataListenerIMPL implements SerialPortDataListener
         {
             midiEmulator.noteOn(lastCommand & MIDIStatusByteUtils.CHANNEL_MASK, data[0], data[1]);
 
-            log.log(Level.toLevel(Priority.INFO_INT),"Note " + data[0] + " on");
+            if(data[1] > 0)
+                log.log(Level.toLevel(Priority.INFO_INT),"Note " + data[0] + " on");
+            else log.log(Level.toLevel(Priority.INFO_INT),"Note " + data[0] + " off");
 
             return 2;
         } else if ((lastCommand & MIDIStatusByteUtils.STATUS_MASK) == MIDIStatusByteUtils.STATUS_NOTE_OFF)

@@ -68,7 +68,7 @@ public class MidiViaUart
         baudArg.setRequired(false);
         options.addOption(baudArg);
 
-        Option logLevel = new Option("l", "logLevel", true, "Sets log level (https://logging.apache.org/log4j/2.x/log4j-api/apidocs/index.html)");
+        Option logLevel = new Option("l", "logLevel", true, "Sets log level \n(https://logging.apache.org/log4j/2.x/log4j-api/apidocs/index.html)");
         logLevel.setRequired(false);
         options.addOption(logLevel);
 
@@ -97,7 +97,9 @@ public class MidiViaUart
 
         try
         {
-            Logger.getRootLogger().setLevel(Level.toLevel(cmd.getOptionValue("logLevel")));
+            if(cmd.getOptionValue("logLevel") != null)
+                Logger.getRootLogger().setLevel(Level.toLevel(cmd.getOptionValue("logLevel")));
+            else Logger.getRootLogger().setLevel(Level.OFF);
         } catch (NumberFormatException e)
         {
             Logger.getRootLogger().setLevel(Level.OFF);
