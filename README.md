@@ -18,5 +18,5 @@ void serialEvent1()
 }
 ```
 
-If you're using an Arduino adapter - you may need to aplify signal from tour device by transistor.
+If you're using an Arduino adapter - you may need to amplify signal from tour device by transistor.
 <img width="441" alt="MIDI signal amplifier" src="https://user-images.githubusercontent.com/61284529/147980482-7774353a-6512-4d1f-9d9c-f9169e0924d0.png">
