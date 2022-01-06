@@ -42,6 +42,7 @@ public class MidiViaUart
 
         for (SerialPort port : ports)
         {
+            log.debug(port.getSystemPortName());
             if (port.getSystemPortName().equals(UARTportName))
             {
                 log.debug("Found port's system entity.");
