@@ -30,7 +30,9 @@ public class MidiEmulator
 
         try
         {
-            myMsg.setMessage(ShortMessage.NOTE_ON, channel, noteNo, velocity);
+            myMsg.setMessage(ShortMessage.NOTE_ON, channel,
+                    noteNo & SerialPortDataListenerIMPL.MIDIStatusByteUtils.DATA_MASK,
+                    velocity & SerialPortDataListenerIMPL.MIDIStatusByteUtils.DATA_MASK);
 
             long timeStamp = -1;
             midiReceiver.send(myMsg, timeStamp);
@@ -46,7 +48,9 @@ public class MidiEmulator
 
         try
         {
-            myMsg.setMessage(ShortMessage.NOTE_OFF, channel, noteNo, velocity);
+            myMsg.setMessage(ShortMessage.NOTE_OFF, channel,
+                    noteNo & SerialPortDataListenerIMPL.MIDIStatusByteUtils.DATA_MASK,
+                    velocity & SerialPortDataListenerIMPL.MIDIStatusByteUtils.DATA_MASK);
             long timeStamp = -1;
             midiReceiver.send(myMsg, timeStamp);
         } catch (Exception e)
@@ -61,7 +65,7 @@ public class MidiEmulator
 
         try
         {
-        myMsg.setMessage(ShortMessage.PITCH_BEND, channel, (byte)( (pitch>>7)  & 0b01111111), (byte)( (pitch>>1) & 0b01111111));
+        myMsg.setMessage(ShortMessage.PITCH_BEND, channel, (byte)( (pitch>>7) & 0b01111111), (byte)( (pitch>>1) & 0b01111111));
         //0LLLLLLL0MMMMMMM      \
         //LSB     MSB           / How it is must be
         //00XXXXXXXXXXXXXX Pitch value in short
@@ -86,7 +90,7 @@ public class MidiEmulator
 
         try
         {
-            myMsg.setMessage(ShortMessage.PITCH_BEND, channel, (byte)( pitchL  & 0b01111111 ), (byte)( pitchM & 0b01111111 ));
+            myMsg.setMessage(ShortMessage.PITCH_BEND, channel, (byte)( pitchL & 0b01111111 ), (byte)( pitchM & 0b01111111 ));
             //0LLLLLLL0MMMMMMM      \
             //LSB     MSB           / How it is must be
             //00XXXXXXXXXXXXXX Pitch value in short
@@ -111,7 +115,8 @@ public class MidiEmulator
 
         try
         {
-            myMsg.setMessage(ShortMessage.CONTROL_CHANGE, channel, 7, volumeLevel);
+            myMsg.setMessage(ShortMessage.CONTROL_CHANGE, channel, 7,
+                    volumeLevel & SerialPortDataListenerIMPL.MIDIStatusByteUtils.DATA_MASK);
 
             long timeStamp = -1;
             midiReceiver.send(myMsg, timeStamp);
@@ -127,7 +132,9 @@ public class MidiEmulator
 
         try
         {
-            myMsg.setMessage(ShortMessage.CONTROL_CHANGE, channel, controlNo, data);
+            myMsg.setMessage(ShortMessage.CONTROL_CHANGE, channel,
+                    controlNo & SerialPortDataListenerIMPL.MIDIStatusByteUtils.DATA_MASK,
+                    data & SerialPortDataListenerIMPL.MIDIStatusByteUtils.DATA_MASK);
 
             long timeStamp = -1;
             midiReceiver.send(myMsg, timeStamp);
