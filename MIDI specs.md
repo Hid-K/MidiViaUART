@@ -31,10 +31,10 @@ MIDI has 16 channels (4 bits of channel number gives 16 combinations): 0 - 15
 
 | Name              | Status number (SSS value) | Data byte 0 meaning | Data byte 1 meaning                   |
 | ----------------- | ------------------------- | ------------------- | ------------------------------------- |
-| Note on           | 0x9n                      | Note pitch          | Velosity<br />(0 - means note off)    |
-| Note off          | 0x8n                      | Note pitch          | Velosity<br />(note release velosity) |
+| Note on           | 0x9n                      | Note pitch          | Velocity<br />(0 - means note off)    |
+| Note off          | 0x8n                      | Note pitch          | Velocity<br />(note release velocity) |
 | Pitch controll    | 0xEn                      | Pitch low 7 bits    | Pitch high 7 bits                     |
-| Controll change   | 0xBn                      | Controll number     | Controll value                        |
+| Controll change   | 0xBn                      | Control lnumber     | Controll value                        |
 | Instrument select | 0xCn                      | Instrument number   | Missed                                |
 
 Note: n - channel number (0 - F)
